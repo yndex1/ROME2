@@ -6,6 +6,8 @@
 #include "mbed.h"
 #include "IRSensor.h"
 #include "Controller.h"
+#include "EncoderCounter.h"
+#include "LowpassFilter.h"
 
 // Blinking rate in milliseconds
 #define BLINKING_RATE     500ms
@@ -39,12 +41,20 @@ int main()
     IRSensor irSensor3(distance, bit0, bit1, bit2, 3);
     IRSensor irSensor4(distance, bit0, bit1, bit2, 4);
     IRSensor irSensor5(distance, bit0, bit1, bit2, 5);
-    //Encoder Initialisieren
+    //PWM Initialisieren
     pwmLeft.period(0.00005);// Setzt die Periode auf 50 µs
     pwmRight.period(0.00005);
     pwmLeft = 0.5;// Setzt die Duty-Cycle auf 50%
     pwmRight = 0.5;
     enableMotorDriver = 1;// Schaltet den Leistungstreiber ein
+
+    //Encoder Objekte erstellen
+     EncoderCounter counterLeft(PD_12, PD_13);
+     EncoderCounter counterRight(PB_4, PC_7);
+
+    // Controller Objekte erstellen
+    Controller controller(pwmLeft, pwmRight, counterLeft, counterRight);
+
     while (true) {
         led0 = irSensor0 < 0.2f;
         led1 = irSensor1 < 0.2f;
@@ -52,7 +62,12 @@ int main()
         led3 = irSensor3 < 0.2f;
         led4 = irSensor4 < 0.2f;
         led5 = irSensor5 < 0.2f;
+
+        /*
         pwmLeft = 0.75;
-        pwmRight = 0.25;
+        pwmRight = 0.25;*/
+
+        controller.setDesiredSpeedLeft(50.0); // Drehzahl in [rpm]
+        controller.setDesiredSpeedRight(50.0);
     }
 }

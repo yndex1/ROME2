@@ -121,8 +121,8 @@ void Controller::run() {
 
         // bitte implementieren!
         
-        //float voltageLeft = ...
-        //float voltageRight = ...
+        float voltageLeft = KP * (desiredSpeedLeft - actualSpeedLeft) + desiredSpeedLeft/KN;
+        float voltageRight = KP * (desiredSpeedRight - actualSpeedRight) + desiredSpeedRight/KN;
 
         // calculate, limit and set the duty-cycle
 
