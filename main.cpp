@@ -56,6 +56,7 @@ int main()
     Controller controller(pwmLeft, pwmRight, counterLeft, counterRight);
 
     while (true) {
+        //Aufgabe 1
         led0 = irSensor0 < 0.2f;
         led1 = irSensor1 < 0.2f;
         led2 = irSensor2 < 0.2f;
@@ -63,11 +64,15 @@ int main()
         led4 = irSensor4 < 0.2f;
         led5 = irSensor5 < 0.2f;
 
-        /*
-        pwmLeft = 0.75;
+        //Aufgabe 2 
+        /*pwmLeft = 0.75;
         pwmRight = 0.25;*/
-
+        
+        //Aufgabe 3
         controller.setDesiredSpeedLeft(50.0); // Drehzahl in [rpm]
         controller.setDesiredSpeedRight(50.0);
+
+        printf("actual speed (left/right): %.3f / %.3f [rpm]\r\n", controller.getActualSpeedLeft(), controller.getActualSpeedRight());
+
     }
 }

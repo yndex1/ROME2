@@ -5,6 +5,7 @@
  */
 
 #include "Controller.h"
+#include <cstdio>
 
 using namespace std;
 
@@ -81,6 +82,16 @@ void Controller::setDesiredSpeedLeft(float desiredSpeedLeft) {
 void Controller::setDesiredSpeedRight(float desiredSpeedRight) {
 
     this->desiredSpeedRight = desiredSpeedRight;
+}
+
+float Controller::getActualSpeedLeft(){
+
+    return actualSpeedLeft;
+}
+
+float Controller::getActualSpeedRight(){
+
+    return actualSpeedRight;
 }
 
 /**
