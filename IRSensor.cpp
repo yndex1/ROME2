@@ -17,6 +17,8 @@ using namespace std;
  * @param bit2 a digital output to control the multiplexer.
  * @param number the number of the sensor. This value must be between 0 and 5.
  */
+
+
 IRSensor::IRSensor(AnalogIn& distance, DigitalOut& bit0, DigitalOut& bit1, DigitalOut& bit2, int number) : distance(distance), bit0(bit0), bit1(bit1), bit2(bit2) {
     
     this->number = number;
