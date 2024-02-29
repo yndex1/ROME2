@@ -20,8 +20,8 @@ using namespace std;
 IRSensor::IRSensor(AnalogIn& distance, DigitalOut& bit0, DigitalOut& bit1, DigitalOut& bit2, int number) : distance(distance), bit0(bit0), bit1(bit1), bit2(bit2) {
     
     this->number = number;
-
 }
+
 /**
  * Deletes this IRSensor object and releases all allocated resources.
  */
@@ -32,15 +32,20 @@ IRSensor::~IRSensor() {}
  * @return a distance value, given in [m].
  */
 float IRSensor::read() {
-    switch (number) {
-    case 0: bit0 = 0; bit1 = 0; bit2 = 0; break;
-    case 1: bit0 = 1; bit1 = 0; bit2 = 0; break;
-    case 2: bit0 = 0; bit1 = 1; bit2 = 0; break;
-    case 3: bit0 = 1; bit1 = 1; bit2 = 0; break;
-    case 4: bit0 = 0; bit1 = 0; bit2 = 1; break;
-    case 5: bit0 = 1; bit1 = 0; bit2 = 1; break;
-    }    
-    float d = 0.09f/(distance+0.001f)-0.03f; // Lesen der Distanz in [m]
+    
+    bit0 = (number >> 0) & 1;
+    bit1 = (number >> 1) & 1;
+    bit2 = (number >> 2) & 1;
+    
+    float d = 0.09f/(distance+0.001f)-0.03f;  // calculate the distance in [m]
     
     return d;
+}
+
+/**
+ * The empty operator is a shorthand notation of the <code>read()</code> method.
+ */
+IRSensor::operator float() {
+    
+    return read();
 }

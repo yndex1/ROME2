@@ -1,5 +1,5 @@
 /*
-* IRSensor.h
+ * IRSensor.h
  * Copyright (c) 2024, ZHAW
  * All rights reserved.
  */
@@ -21,6 +21,7 @@ class IRSensor {
                 IRSensor(AnalogIn& distance, DigitalOut& bit0, DigitalOut& bit1, DigitalOut& bit2, int number);
         virtual ~IRSensor();
         float   read();
+                operator float();
         
     private:
         
