@@ -1,3 +1,13 @@
+Tabelle für IR Sensoren
+
+0 hinten         0 0 0
+1 hinten-links   0 0 1
+2 vorne-links    0 1 0
+3 vorne          0 1 1
+4 vorne-rechts   1 0 0
+5 hinten-rechts  1 0 1
+
+
 ![](./resources/official_armmbed_example_badge.png)
 # Blinky Mbed OS example
 
