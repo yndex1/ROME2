@@ -10,8 +10,8 @@
 using namespace std;
 
 const float StateMachine::PERIOD = 0.01f;                   // period of task, given in [s]
-const float StateMachine::DISTANCE_THRESHOLD = 0.2f;        // minimum allowed distance to obstacle in [m]
-const float StateMachine::TRANSLATIONAL_VELOCITY = 0.3f;    // translational velocity in [m/s]
+const float StateMachine::DISTANCE_THRESHOLD = 0.3f;        // minimum allowed distance to obstacle in [m]
+const float StateMachine::TRANSLATIONAL_VELOCITY = 0.4f;    // translational velocity in [m/s]
 const float StateMachine::ROTATIONAL_VELOCITY = 1.0f;       // rotational velocity in [rad/s]
 const float StateMachine::VELOCITY_THRESHOLD = 0.01;        // velocity threshold before switching off, in [m/s] and [rad/s]
 
@@ -83,6 +83,9 @@ void StateMachine::run() {
             
             case ROBOT_OFF:
                 
+                //Brauchts des überhaupt noch
+                enableMotorDriver = 0;
+
                 buttonNow = button;
                 
                 if (buttonNow && !buttonBefore) {   // detect button rising edge
@@ -101,23 +104,113 @@ void StateMachine::run() {
                 
             case MOVE_FORWARD:
                 
+                //vorne links objekt
+                if (irSensor2.read()  < DISTANCE_THRESHOLD ) {
+
+                led2 = 1;
+                controller.setTranslationalVelocity(0.0f);
+                controller.setRotationalVelocity(-ROTATIONAL_VELOCITY);
+                state = TURN_RIGHT;
+
+
+                }
+
+                //vorne rechts objekt
+                if (irSensor4.read() < DISTANCE_THRESHOLD) {
+
+                led4 = 1;
+                controller.setTranslationalVelocity(0.0f);
+                controller.setRotationalVelocity(ROTATIONAL_VELOCITY);
+                state = TURN_LEFT;
+
+                }
+
+                if (irSensor3.read() < DISTANCE_THRESHOLD) {
+
+                led3 = 1;
+                controller.setTranslationalVelocity(0.0f);
+                controller.setRotationalVelocity(-ROTATIONAL_VELOCITY);
+                state = TURN_RIGHT;
+                }
+
+                buttonNow = button;
                 
+                if (buttonNow && !buttonBefore) {   // detect button rising edge
+                                 
+                    controller.setTranslationalVelocity(0.0f);
+                    controller.setRotationalVelocity(0.0f);
+                    
+                    state = SLOWING_DOWN;
+                }
+                
+                buttonBefore = buttonNow;
+
                 break;
                 
             case TURN_LEFT:
+
+            if (irSensor4.read() > DISTANCE_THRESHOLD && irSensor3.read() > DISTANCE_THRESHOLD && irSensor2 > DISTANCE_THRESHOLD) {
                 
+                led4 = 0;
+                controller.setRotationalVelocity(0.0f);
+                controller.setTranslationalVelocity(TRANSLATIONAL_VELOCITY);
+
+                state = MOVE_FORWARD;
+                
+            }
+
+            buttonNow = button;
+                
+                if (buttonNow && !buttonBefore) {   // detect button rising edge
+                                        
+                    controller.setTranslationalVelocity(0.0f);
+                    controller.setRotationalVelocity(0.0f);
+                    
+                    state = SLOWING_DOWN;
+                }
+                
+            buttonBefore = buttonNow;
                 
                 break;
                 
             case TURN_RIGHT:
                 
+            if (irSensor2.read()  > DISTANCE_THRESHOLD && irSensor3.read() > DISTANCE_THRESHOLD && irSensor4 > DISTANCE_THRESHOLD) {
+                
+                led2 = 0;
+                led3 = 0;
+                controller.setRotationalVelocity(0.0f);
+                controller.setTranslationalVelocity(TRANSLATIONAL_VELOCITY);
+
+                state = MOVE_FORWARD;
+                
+            }
+
+            buttonNow = button;
+                
+                if (buttonNow && !buttonBefore) {   // detect button rising edge
+                                        
+                    controller.setTranslationalVelocity(0.0f);
+                    controller.setRotationalVelocity(0.0f);
+                    
+                    state = SLOWING_DOWN;
+                }
+                
+            buttonBefore = buttonNow;
                 
                 break;
                 
             case SLOWING_DOWN:
-                
-                
-                break;
+
+            if (controller.getActualTranslationalVelocity() < VELOCITY_THRESHOLD){
+
+            enableMotorDriver = 0;
+
+            state = ROBOT_OFF;
+
+            }                
+
+            break;
                 
             default:
                 
