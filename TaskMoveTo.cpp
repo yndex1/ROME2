@@ -79,7 +79,44 @@ TaskMoveTo::~TaskMoveTo() {}
  */
 int TaskMoveTo::run(float period) {
     
-    // bitte implementieren!
+    float x = controller.getX();
+    float y = controller.getY();
+    float alpha = controller.getAlpha();
     
-    return RUNNING;
+    float rho = sqrt((this->x-x)*(this->x-x)+(this->y-y)*(this->y-y));
+    
+    if (rho > zone) {
+        
+        float gamma = atan2(this->y-y, this->x-x)-alpha;
+        
+        while (gamma < -M_PI) gamma += 2.0f*M_PI;
+        while (gamma > M_PI) gamma -= 2.0f*M_PI;
+        
+        float delta = gamma+alpha-this->alpha;
+        
+        while (delta < -M_PI) delta += 2.0f*M_PI;
+        while (delta > M_PI) delta -= 2.0f*M_PI;
+        
+        float translationalVelocity = K1*rho*cos(gamma);
+        translationalVelocity = (translationalVelocity > velocity) ? velocity : (translationalVelocity < -velocity) ? -velocity : translationalVelocity;
+        
+        float rotationalVelocity = 0.0f;
+
+        if (fabs(gamma) > 1.0e-6f) {
+            
+            rotationalVelocity = K2*gamma+K1*sin(gamma)*cos(gamma)*(gamma+K3*delta)/gamma;
+        }
+
+        controller.setTranslationalVelocity(translationalVelocity);
+        controller.setRotationalVelocity(rotationalVelocity);
+
+        return RUNNING;
+
+    } else {
+
+        controller.setTranslationalVelocity(0.0f);
+        controller.setRotationalVelocity(0.0f);
+
+        return DONE;
+    }
 }

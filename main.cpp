@@ -8,6 +8,7 @@
 #include <mbed.h>
 #include "IRSensor.h"
 #include "EncoderCounter.h"
+#include "IMU.h"
 #include "Controller.h"
 #include "StateMachine.h"
 
@@ -54,6 +55,14 @@ int main() {
     EncoderCounter counterLeft(PD_12, PD_13);
     EncoderCounter counterRight(PB_4, PC_7);
     
+    // create inertial measurement unit object
+    
+    SPI spi(PC_12, PC_11, PC_10);
+    DigitalOut csAG(PC_8);
+    DigitalOut csM(PC_9);
+    
+    IMU imu(spi, csAG, csM);
+    
     // create robot controller objects
     
     Controller controller(pwmLeft, pwmRight, counterLeft, counterRight);
@@ -63,8 +72,11 @@ int main() {
         
         led = !led;
         
-        printf("actual velocity: %.3f [m/s] / %.3f [rad/s]\r\n", controller.getActualTranslationalVelocity(), controller.getActualRotationalVelocity());
+        printf("Acceleration: %.3f %.3f %.3f [m/s2]\r\n", imu.readAccelerationX(), imu.readAccelerationY(), imu.readAccelerationZ());
+        printf("Gyro: %.3f %.3f %.3f [rad/s]\r\n", imu.readGyroX(), imu.readGyroY(), imu.readGyroZ());
+        printf("Magnetometer: %.3f %.3f %.3f [gauss]\r\n", imu.readMagnetometerX(), imu.readMagnetometerY(), imu.readMagnetometerZ());
+        printf("Heading: %.1f [degrees]\r\n", 57.2957795f*imu.readHeading());
         
-        ThisThread::sleep_for(100ms);
+        ThisThread::sleep_for(500ms);
     }
 }
