@@ -217,8 +217,16 @@ float IMU::readGyroZ() {
 float IMU::readMagnetometerX() {
     
     // bitte implementieren!
+    mutex.lock();
     
-    return 0.0f;
+    char low = readRegister(csM, OUT_X_L_M);
+    char high = readRegister(csM, OUT_X_H_M);
+    
+    short value = (short)(((unsigned short)high << 8) | (unsigned short)low);
+    
+    mutex.unlock();
+    
+    return (float)value/32768.0f*245.0f*M_PI/180.0f;
 }
 
 /**
@@ -228,8 +236,17 @@ float IMU::readMagnetometerX() {
 float IMU::readMagnetometerY() {
     
     // bitte implementieren!
+    // bitte implementieren!
+    mutex.lock();
     
-    return 0.0f;
+    char low = readRegister(csM, OUT_Y_L_M);
+    char high = readRegister(csM, OUT_Y_H_M);
+    
+    short value = (short)(((unsigned short)high << 8) | (unsigned short)low);
+    
+    mutex.unlock();
+    
+    return (float)value/32768.0f*245.0f*M_PI/180.0f;
 }
 
 /**
@@ -239,8 +256,17 @@ float IMU::readMagnetometerY() {
 float IMU::readMagnetometerZ() {
     
     // bitte implementieren!
+    // bitte implementieren!
+    mutex.lock();
     
-    return 0.0f;
+    char low = readRegister(csM, OUT_Z_L_M);
+    char high = readRegister(csM, OUT_Z_H_M);
+    
+    short value = (short)(((unsigned short)high << 8) | (unsigned short)low);
+    
+    mutex.unlock();
+    
+    return (float)value/32768.0f*245.0f*M_PI/180.0f;
 }
 
 /**
