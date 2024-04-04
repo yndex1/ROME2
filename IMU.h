@@ -74,6 +74,7 @@ class IMU {
         static const unsigned int   STACK_SIZE = 2048;          // stack size of thread, given in [bytes]
         static const float          PERIOD;                     // period of task, given in [s]
         static const float          M_PI;                       // the mathematical constant PI
+        static const float          LOWPASS_FILTER_FREQUENCY;   // frequency of the lowpass filter, given in [rad/s]
         
         SPI&            spi;
         DigitalOut&     csAG;
@@ -83,6 +84,12 @@ class IMU {
         Thread          thread;
         Ticker          ticker;
         
+        float           magnetometerXMin;
+        float           magnetometerXMax;
+        float           magnetometerYMin;
+        float           magnetometerYMax;
+        LowpassFilter   magnetometerXFilter;
+        LowpassFilter   magnetometerYFilter;
         float           heading;
         
         void    writeRegister(DigitalOut& cs, char address, char value);

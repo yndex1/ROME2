@@ -11,6 +11,9 @@
 #include "IMU.h"
 #include "Controller.h"
 #include "StateMachine.h"
+#include "HTTPServer.h"
+#include "HTTPScriptIMU.h"
+#include "HTTPScriptOrientation.h"
 
 int main() {
     
@@ -68,6 +71,19 @@ int main() {
     Controller controller(pwmLeft, pwmRight, counterLeft, counterRight);
     StateMachine stateMachine(controller, enableMotorDriver, led0, led1, led2, led3, led4, led5, button, irSensor0, irSensor1, irSensor2, irSensor3, irSensor4, irSensor5);
     
+    // create ethernet interface and webserver
+    
+    DigitalOut enableRouter(PB_15);
+    enableRouter = 1;
+    
+    EthernetInterface* ethernet = new EthernetInterface();
+    ethernet->set_network("192.168.0.10", "255.255.255.0", "192.168.0.1"); // configure IP address, netmask and gateway address
+    ethernet->connect();
+    
+    HTTPServer* httpServer = new HTTPServer(*ethernet);
+    httpServer->add("imu", new HTTPScriptIMU(imu));
+    httpServer->add("orientation", new HTTPScriptOrientation(controller, imu));
+
     while (true) {
         
         led = !led;

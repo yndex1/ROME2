@@ -8,8 +8,9 @@
 
 using namespace std;
 
-const float IMU::PERIOD = 0.002f;               // period of task, given in [s]
-const float IMU::M_PI = 3.14159265f;            // the mathematical constant PI
+const float IMU::PERIOD = 0.002f;                   // period of task, given in [s]
+const float IMU::M_PI = 3.14159265f;                // the mathematical constant PI
+const float IMU::LOWPASS_FILTER_FREQUENCY = 3.14f;  // frequency of the lowpass filter, given in [rad/s]
 
 /**
  * Creates an IMU object.
@@ -51,6 +52,21 @@ IMU::IMU(SPI& spi, DigitalOut& csAG, DigitalOut& csM) : spi(spi), csAG(csAG), cs
     writeRegister(csM, CTRL_REG5_M, 0x00);      // fast read disabled
     
     // initialize local variables
+    
+    magnetometerXMin = 1000.0f;
+    magnetometerXMax = -1000.0f;
+    magnetometerYMin = 1000.0f;
+    magnetometerYMax = -1000.0f;
+    
+    magnetometerXFilter.setPeriod(PERIOD);
+    magnetometerXFilter.setFrequency(LOWPASS_FILTER_FREQUENCY);
+    magnetometerXFilter.reset(readMagnetometerX());
+    magnetometerXFilter.filter(readMagnetometerX());
+    
+    magnetometerYFilter.setPeriod(PERIOD);
+    magnetometerYFilter.setFrequency(LOWPASS_FILTER_FREQUENCY);
+    magnetometerYFilter.reset(readMagnetometerY());
+    magnetometerYFilter.filter(readMagnetometerY());
     
     heading = 0.0f;
     
@@ -216,7 +232,6 @@ float IMU::readGyroZ() {
  */
 float IMU::readMagnetometerX() {
     
-    // bitte implementieren!
     mutex.lock();
     
     char low = readRegister(csM, OUT_X_L_M);
@@ -226,7 +241,7 @@ float IMU::readMagnetometerX() {
     
     mutex.unlock();
     
-    return (float)value/32768.0f*245.0f*M_PI/180.0f;
+    return (float)value/32768.0f*4.0f;
 }
 
 /**
@@ -235,8 +250,6 @@ float IMU::readMagnetometerX() {
  */
 float IMU::readMagnetometerY() {
     
-    // bitte implementieren!
-    // bitte implementieren!
     mutex.lock();
     
     char low = readRegister(csM, OUT_Y_L_M);
@@ -246,7 +259,7 @@ float IMU::readMagnetometerY() {
     
     mutex.unlock();
     
-    return (float)value/32768.0f*245.0f*M_PI/180.0f;
+    return (float)value/32768.0f*4.0f;
 }
 
 /**
@@ -255,8 +268,6 @@ float IMU::readMagnetometerY() {
  */
 float IMU::readMagnetometerZ() {
     
-    // bitte implementieren!
-    // bitte implementieren!
     mutex.lock();
     
     char low = readRegister(csM, OUT_Z_L_M);
@@ -266,7 +277,7 @@ float IMU::readMagnetometerZ() {
     
     mutex.unlock();
     
-    return (float)value/32768.0f*245.0f*M_PI/180.0f;
+    return (float)value/32768.0f*4.0f;
 }
 
 /**
@@ -298,12 +309,25 @@ void IMU::run() {
         
         ThisThread::flags_wait_any(threadFlag);
         
-        // filter and process sensor data...
+        // read actual measurements from magnetometer registers
         
+        float magnetometerX = magnetometerXFilter.filter(readMagnetometerX());
+        float magnetometerY = magnetometerYFilter.filter(readMagnetometerY());
         
+        // adjust the minimum and maximum limits, if needed
         
-        // calculate heading...
+        if (magnetometerXMin > magnetometerX) magnetometerXMin = magnetometerX;
+        if (magnetometerXMax < magnetometerX) magnetometerXMax = magnetometerX;
+        if (magnetometerYMin > magnetometerY) magnetometerYMin = magnetometerY;
+        if (magnetometerYMax < magnetometerY) magnetometerYMax = magnetometerY;
         
-        heading = 0.0f;
+        // calculate adjusted magnetometer values (gain and offset compensation)
+        
+        if (magnetometerXMin < magnetometerXMax) magnetometerX = (magnetometerX-magnetometerXMin)/(magnetometerXMax-magnetometerXMin)-0.5f;
+        if (magnetometerYMin < magnetometerYMax) magnetometerY = (magnetometerY-magnetometerYMin)/(magnetometerYMax-magnetometerYMin)-0.5f;
+        
+        // calculate heading with atan2 from x and y magnetometer measurements
+        
+        heading = atan2(-magnetometerY, magnetometerX);
     }
 }
