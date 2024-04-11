@@ -97,11 +97,11 @@ deque<Point> LIDAR::getBeacons() {
         Point next = scan[i + 1];
 
         // Überprüfe, ob der Abstand des aktuellen Punktes innerhalb der Grenzwerte liegt
-        if (distances[i] <= 3.0f) {
+        if (current.distance() <= 3.0f) {
             // Überprüfe, ob es mindestens einen weiteren Punkt weniger als 0.1 Meter entfernt gibt
             bool nearbyPointFound = false;
             for (size_t j = i + 1; j < scan.size(); ++j) {
-                if (abs(distances[i-1] - distances[i]) <= 0.1f) {
+                if (abs(scan[j].distance() - current.distance()) <= 0.1f) {
                     nearbyPointFound = true;
                     break;
                 }
@@ -112,11 +112,11 @@ deque<Point> LIDAR::getBeacons() {
                 // Überprüfe, ob andere Punkte entweder auf demselben Rohr oder ganz woanders liegen
                 bool isolated = true;
                 for (size_t j = 0; j < scan.size(); ++j) {
-                    if (j != i && abs(distances[i-1] - distances[i]) <= 0.1f) {
+                    if (j != i && abs(scan[j].distance() - current.distance()) <= 0.1f) {
                         isolated = false;
                         break;
                     }
-                    if (j != i && abs(distances[i-1] - distances[i]) > 0.5f) {
+                    if (j != i && abs(scan[j].distance() - current.distance()) > 0.5f) {
                         isolated = false;
                         break;
                     }
@@ -132,6 +132,7 @@ deque<Point> LIDAR::getBeacons() {
 
     return beacons;
 }
+
 
 
 /**
