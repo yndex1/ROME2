@@ -89,7 +89,7 @@ deque<Point> LIDAR::getScan() {
 deque<Point> LIDAR::getBeacons() {
     deque<Point> scan = getScan();
     deque<Point> beacons;
-<<<<<<< HEAD
+
     
     // check the points of a scan for beacons
     
@@ -116,7 +116,7 @@ deque<Point> LIDAR::getBeacons() {
         if (beacon && (counter > 1)) beacons.push_back(scan[i]);
     }
     
-=======
+
 
     // Durchlaufe den Scan und identifiziere potenzielle Beacons
     for (size_t i = 1; i < scan.size() - 1; ++i) {
@@ -158,7 +158,6 @@ deque<Point> LIDAR::getBeacons() {
         }
     }
 
->>>>>>> 5ddcca0ae7d80c1dd85be0a99991d67cc1582dc3
     return beacons;
 }
 

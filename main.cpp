@@ -99,8 +99,41 @@ int main() {
         led = !led;
         
         ThisThread::sleep_for(100ms);
-        
-        
-        
+
+        deque<Point> beacons = lidar->getBeacons();
+
+
+        Point rohr1;
+        rohr1.x = 0.0f;
+        rohr1.y = 0.5f;
+        Point rohr2;
+        rohr2.x = 2.0f;
+        rohr2.y = 0.5f;
+        Point rohr3;
+        rohr3.x = 4.0f;
+        rohr3.y = 0.5f;
+        Point rohr4;
+        rohr4.x = 6.0f;
+        rohr4.y = 0.5f;
+
+        for (int i; i < beacons.size(); i++) {
+          float x = controller.getX();
+          float y = controller.getY();
+          float alpha = controller.getAlpha();
+          Point measuredBeacon;
+
+          measuredBeacon.x = cos(alpha) * beacons[i].x - sin(alpha) * beacons[i].y + x;
+          measuredBeacon.y = sin(alpha) * beacons[i].x + cos(alpha) * beacons[i].y + y;
+
+          if (rohr1.distance(measuredBeacon) < 0.4f) {
+            controller.correctPoseWithBeacon(rohr1, measuredBeacon);
+          } else if (rohr2.distance(measuredBeacon) < 0.4f) {
+            controller.correctPoseWithBeacon(rohr2, measuredBeacon);
+          } else if (rohr3.distance(measuredBeacon) < 0.4f) {
+            controller.correctPoseWithBeacon(rohr3, measuredBeacon);
+          } else if (rohr4.distance(measuredBeacon) < 0.4f) {
+            controller.correctPoseWithBeacon(rohr4, measuredBeacon);
+          }
+        }
     }
 }
