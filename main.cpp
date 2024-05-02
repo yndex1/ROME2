@@ -6,19 +6,14 @@
 
 #include <stdio.h>
 #include <mbed.h>
-<<<<<<< HEAD
 #include "IRSensor.h"
 #include "EncoderCounter.h"
 #include "IMU.h"
 #include "LIDAR.h"
 #include "Controller.h"
 #include "StateMachine.h"
-=======
-#include "IMU.h"
-#include "SensorFusion.h"
->>>>>>> 5ddcca0ae7d80c1dd85be0a99991d67cc1582dc3
 #include "HTTPServer.h"
-#include "HTTPScriptSensorFusion.h"
+#include "HTTPScriptLIDAR.h"
 
 int main() {
     
@@ -34,7 +29,6 @@ int main() {
     DigitalOut led4(PD_7);
     DigitalOut led5(PD_5);
     
-<<<<<<< HEAD
     // create IR sensor objects
     
     AnalogIn distance(PA_0);
@@ -73,17 +67,15 @@ int main() {
     IMU imu(spi, csAG, csM);
 
     // create LIDAR device driver
-=======
-    // create inertial measurement unit object
->>>>>>> 5ddcca0ae7d80c1dd85be0a99991d67cc1582dc3
     
-    SPI spi(PC_12, PC_11, PC_10);
-    DigitalOut csAG(PC_8);
-    DigitalOut csM(PC_9);
+    PwmOut pwm(PE_9);
+    pwm.period(0.00005f);
+    pwm.write(0.5f);
     
-    IMU imu(spi, csAG, csM);
+    ThisThread::sleep_for(500ms);
     
-    SensorFusion sensorFusion(imu);
+    UnbufferedSerial* serial = new UnbufferedSerial(PG_14, PG_9);
+    LIDAR* lidar = new LIDAR(*serial);
     
     // create robot controller objects
     
@@ -100,13 +92,8 @@ int main() {
     ethernet->connect();
     
     HTTPServer* httpServer = new HTTPServer(*ethernet);
-<<<<<<< HEAD
     httpServer->add("lidar", new HTTPScriptLIDAR(*lidar));
 
-=======
-    httpServer->add("sensorfusion", new HTTPScriptSensorFusion(sensorFusion));
-    
->>>>>>> 5ddcca0ae7d80c1dd85be0a99991d67cc1582dc3
     while (true) {
         
         led = !led;
