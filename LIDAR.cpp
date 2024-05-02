@@ -87,14 +87,9 @@ deque<Point> LIDAR::getScan() {
  * @return a deque vector of points that are beacons.
  */
 deque<Point> LIDAR::getBeacons() {
-    
-    // get a list of all points of a scan
-    
     deque<Point> scan = getScan();
-    
-    // create a list of points of beacons
-    
     deque<Point> beacons;
+<<<<<<< HEAD
     
     // check the points of a scan for beacons
     
@@ -121,8 +116,53 @@ deque<Point> LIDAR::getBeacons() {
         if (beacon && (counter > 1)) beacons.push_back(scan[i]);
     }
     
+=======
+
+    // Durchlaufe den Scan und identifiziere potenzielle Beacons
+    for (size_t i = 1; i < scan.size() - 1; ++i) {
+        Point current = scan[i];
+        Point prev = scan[i - 1];
+        Point next = scan[i + 1];
+
+        // Überprüfe, ob der Abstand des aktuellen Punktes innerhalb der Grenzwerte liegt
+        if (current.distance() <= 3.0f) {
+            // Überprüfe, ob es mindestens einen weiteren Punkt weniger als 0.1 Meter entfernt gibt
+            bool nearbyPointFound = false;
+            for (size_t j = i + 1; j < scan.size(); ++j) {
+                if (abs(scan[j].distance() - current.distance()) <= 0.1f) {
+                    nearbyPointFound = true;
+                    break;
+                }
+            }
+
+            // Überprüfe, ob der Punkt Teil des Rohrs ist
+            if (nearbyPointFound) {
+                // Überprüfe, ob andere Punkte entweder auf demselben Rohr oder ganz woanders liegen
+                bool isolated = true;
+                for (size_t j = 0; j < scan.size(); ++j) {
+                    if (j != i && abs(scan[j].distance() - current.distance()) <= 0.1f) {
+                        isolated = false;
+                        break;
+                    }
+                    if (j != i && abs(scan[j].distance() - current.distance()) > 0.5f) {
+                        isolated = false;
+                        break;
+                    }
+                }
+
+                // Füge den Punkt als Beacon hinzu, wenn er die Bedingungen erfüllt
+                if (isolated) {
+                    beacons.push_back(current);
+                }
+            }
+        }
+    }
+
+>>>>>>> 5ddcca0ae7d80c1dd85be0a99991d67cc1582dc3
     return beacons;
 }
+
+
 
 /**
  * This method is called by the serial interrupt service routine.
