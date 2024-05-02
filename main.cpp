@@ -6,6 +6,12 @@
 
 #include <stdio.h>
 #include <mbed.h>
+#include "IRSensor.h"
+#include "EncoderCounter.h"
+#include "IMU.h"
+#include "LIDAR.h"
+#include "Controller.h"
+#include "StateMachine.h"
 #include "HTTPServer.h"
 #include "HTTPScriptLIDAR.h"
 
@@ -23,6 +29,43 @@ int main() {
     DigitalOut led4(PD_7);
     DigitalOut led5(PD_5);
     
+    // create IR sensor objects
+    
+    AnalogIn distance(PA_0);
+    DigitalOut enable(PG_1);
+    DigitalOut bit0(PF_0);
+    DigitalOut bit1(PF_1);
+    DigitalOut bit2(PF_2);
+    
+    IRSensor irSensor0(distance, bit0, bit1, bit2, 0);
+    IRSensor irSensor1(distance, bit0, bit1, bit2, 1);
+    IRSensor irSensor2(distance, bit0, bit1, bit2, 2);
+    IRSensor irSensor3(distance, bit0, bit1, bit2, 3);
+    IRSensor irSensor4(distance, bit0, bit1, bit2, 4);
+    IRSensor irSensor5(distance, bit0, bit1, bit2, 5);
+    
+    enable = 1;
+    
+    // create motor control objects
+    
+    DigitalOut enableMotorDriver(PG_0); 
+    DigitalIn motorDriverFault(PD_1);
+    DigitalIn motorDriverWarning(PD_0);
+    
+    PwmOut pwmLeft(PF_9);
+    PwmOut pwmRight(PF_8);
+    
+    EncoderCounter counterLeft(PD_12, PD_13);
+    EncoderCounter counterRight(PB_4, PC_7);
+    
+    // create inertial measurement unit object
+    
+    SPI spi(PC_12, PC_11, PC_10);
+    DigitalOut csAG(PC_8);
+    DigitalOut csM(PC_9);
+    
+    IMU imu(spi, csAG, csM);
+
     // create LIDAR device driver
     
     PwmOut pwm(PE_9);
@@ -33,6 +76,11 @@ int main() {
     
     UnbufferedSerial* serial = new UnbufferedSerial(PG_14, PG_9);
     LIDAR* lidar = new LIDAR(*serial);
+    
+    // create robot controller objects
+    
+    Controller controller(pwmLeft, pwmRight, counterLeft, counterRight);
+    StateMachine stateMachine(controller, enableMotorDriver, led0, led1, led2, led3, led4, led5, button, irSensor0, irSensor1, irSensor2, irSensor3, irSensor4, irSensor5);
     
     // create ethernet interface and webserver
     
@@ -45,11 +93,14 @@ int main() {
     
     HTTPServer* httpServer = new HTTPServer(*ethernet);
     httpServer->add("lidar", new HTTPScriptLIDAR(*lidar));
-    
+
     while (true) {
         
         led = !led;
         
-        ThisThread::sleep_for(250ms);
+        ThisThread::sleep_for(100ms);
+        
+        
+        
     }
 }

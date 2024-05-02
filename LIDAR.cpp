@@ -96,9 +96,30 @@ deque<Point> LIDAR::getBeacons() {
     
     deque<Point> beacons;
     
-    // bitte implementieren!
+    // check the points of a scan for beacons
     
-    
+    for (unsigned short i = 0; i < scan.size(); i++) {
+        
+        bool beacon = true; // flag to check if this point is possibly a beacon
+        int counter = 0;
+        
+        // check distance to other points
+        
+        for (unsigned short j = 0; beacon && (j < scan.size()); j++) {
+            
+            float distance = scan[i].manhattanDistance(scan[j]);
+            if (distance < 0.1f) {
+                
+                counter++; // another point which may be part of this beacon
+                
+            } else if (distance < 0.5f) {
+                
+                beacon = false; // this point cannot be part of a beacon
+            }
+        }
+        
+        if (beacon && (counter > 1)) beacons.push_back(scan[i]);
+    }
     
     return beacons;
 }

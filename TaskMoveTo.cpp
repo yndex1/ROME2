@@ -10,7 +10,7 @@
 using namespace std;
 
 const float TaskMoveTo::DEFAULT_VELOCITY = 0.3f;    // default velocity value, given in [m/s]
-const float TaskMoveTo::DEFAULT_ZONE = 0.02f;       // default zone value, given in [m]
+const float TaskMoveTo::DEFAULT_ZONE = 0.05f;       // default zone value, given in [m]
 const float TaskMoveTo::M_PI = 3.14159265f;         // the mathematical constant PI
 const float TaskMoveTo::K1 = 2.0f;                  // position controller gain parameter
 const float TaskMoveTo::K2 = 2.0f;                  // position controller gain parameter
